@@ -54,7 +54,7 @@ Most of the keys are self-explanatory. Here's some additional explanation for th
 - `day_offset:` the number of minutes before/after sunrise that `day_temp` should be set
 - `night_offset:` the number of minutes before/after sunset that `night_temp` should be set
 
-The remainder of the device settings have to do with your house's behavior with respect to outside temperature and radiant heat from the sun. The script will always use HEATCOOL mode to ensure that the indoor temperature never gets too far away from the desired set point.
+The remainder of the device settings have to do with your house's behavior with respect to outside temperature and radiant heat from the sun. The script will always use HEATCOOL mode to ensure that the indoor temperature never gets too far away from the desired set point (more accurately, it will just exit if HEATCOOL mode is not already set).
 
 When the outside temperature is cold, it will make the heat set point the desired indoor temperature and raise the cool set point to `hysteresis` degrees above that. On the contrary, on a hot day, it will make the cool set point the desired indoor temperature and decrease the heat set point to `hysteresis` degrees below it. This way, your thermostat is undumb, and the indoor temperature always remains close to the actual desired temperature (the script even accounts for indoor relative humidity and modifies the set point to a "feels like" value!).
 
