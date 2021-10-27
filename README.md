@@ -59,6 +59,10 @@ When the outside temperature is cold, it will make the heat set point the desire
 
 To accurately determine the threshold at which the set point should be biased toward heating or cooling, you'll need to enter some information about your home's behavior with respect to outside temperature.  Most houses will require a bit of cooling even when the outdoor temperature is below the desired indoor temperature due to radiant heating from the sun as well as heat from indoor appliances or even people inside.
 
+To over-simplify, set `mid_uv_offset` to the number of degrees below your house's indoor temperature where you expect to switch from heating to cooling.  Set `max_uv_offset` 5-10 degrees larger than `mid_uv_offset`, and set `min_uv_offset` 5-10 degrees less.  Set `morning_offset` to 60 minutes or so, and set `evening_offset` to around 120 minutes.
+
+Keep reading for a more technical explanation (or at least more words on the subject).
+
 The script uses current temperature and UV index from OpenWeatherMap, along with the `*_uv_offset` values to determine the heat/cool bias threshold.  When the UV index is high, `max_uv_offset` will be subtracted from the set point to arrive at the threshold value.  When the UV index is low, `min_uv_offset` will be used the same way.  `mid_uv_index` is used to further modify the threshold in an attempt to account for latent heat in the evening and cooler temperatures in the morning.  Evening and morning in this case are defined by `morning_offset` and `evening_offset` (in minutes).  The script will delay applying a large UV offset in the morning and likewise continue applying a larger UV offset in the evening.
 
 If that doesn't make sense, just use the default values and keep an eye on your house's behavior when the outside temperature swings above and below the desired indoor temperature (like Spring and Fall in most locales).  If the script isn't being smart enough, modify the UV offset values and/or morning/evening offset values to suit.
