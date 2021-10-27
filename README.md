@@ -38,7 +38,7 @@ If you intend to run the script on an automated schedule (as it's intended), you
 
 There are a lot of setup steps if you haven't used the Google Cloud Platform before, and it can be frustrating and confusing.  [This link](http://vunvulearadu.blogspot.com/2020/11/how-to-get-access-to-google-nest.html) is slightly outdated but may help clarify some of the steps.  Google is going to charge you a one-time fee of $5 as well, so there's that...
 
-Once the script has successfully discoverd your devices and created `secrets.json`, you can set up a [`systemd` service](https://linuxconfig.org/how-to-schedule-tasks-with-systemd-timers-in-linux) (or Windows Task) to run it a few times per day, or even hourly like I do.  Running it too often could re-dumb your thermostat, so stick to once per hour or so.
+Once the script has successfully discovered your devices and created `secrets.json`, you can set up a [`systemd` service](https://linuxconfig.org/how-to-schedule-tasks-with-systemd-timers-in-linux) (or Windows Task) to run it a few times per day, or even hourly like I do.  Running it too often could re-dumb your thermostat, so stick to once per hour or so.
 
 ## secrets.json
 
@@ -59,7 +59,7 @@ When the outside temperature is cold, it will make the heat set point the desire
 
 To accurately determine the threshold at which the set point should be biased toward heating or cooling, you'll need to enter some information about your home's behavior with respect to outside temperature.  Most houses will require a bit of cooling even when the outdoor temperature is below the desired indoor temperature due to radiant heating from the sun as well as heat from indoor appliances or even people inside.
 
-The script uses current temperature and UV index from OpenWeatherMap, along with the `*_uv_offset` values to determine the heat/cool bias threshold.  When the UV index is high, `max_uv_offset` will be subtracted from the set point to arrive at the threshold value.  When the UV index is low, `min_uv_offset` will be used the same way.  `mid_uv_index` is used to further bias the threshold in an attempt to account for latent heat in the evening and cooler temp in the morning.  Evening and morning in this case are defined by `morning_offset` and `evening_offset` (in minutes).  The script will delay applying a large UV offset in the morning and likewise continue applying a larger UV offset in the evening.
+The script uses current temperature and UV index from OpenWeatherMap, along with the `*_uv_offset` values to determine the heat/cool bias threshold.  When the UV index is high, `max_uv_offset` will be subtracted from the set point to arrive at the threshold value.  When the UV index is low, `min_uv_offset` will be used the same way.  `mid_uv_index` is used to further modify the threshold in an attempt to account for latent heat in the evening and cooler temperatures in the morning.  Evening and morning in this case are defined by `morning_offset` and `evening_offset` (in minutes).  The script will delay applying a large UV offset in the morning and likewise continue applying a larger UV offset in the evening.
 
 If that doesn't make sense, just use the default values and keep an eye on your house's behavior when the outside temperature swings above and below the desired indoor temperature (like Spring and Fall in most locales).  If the script isn't being smart enough, modify the UV offset values and/or morning/evening offset values to suit.
 
