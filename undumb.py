@@ -1,5 +1,5 @@
 from sys import argv, stderr
-from os import path
+from os import path, mkdir
 from requests import get, post
 import json
 import re
@@ -8,11 +8,10 @@ from datetime import datetime, timedelta
 
 SCRIPT = path.basename(argv[0])
 VERSION = '0.1'
-SECRETS_FILE = 'secrets.json'
-WEATHER_FILE = 'weather.json'
-LOG_FILE = 'nest_log.json'
-
-# TODO: use /etc or %appdata% to store json files
+PATH = path.join(path.expanduser('~'), 'undumb')
+SECRETS_FILE = path.join(PATH, 'secrets.json')
+WEATHER_FILE = path.join(PATH, 'weather.json')
+LOG_FILE = path.join(PATH, 'undumb-log.json')
 
 
 class RequestError(Exception):
@@ -259,6 +258,9 @@ def set_temp_range(secrets, device_index, temps):
 
 
 if __name__ == ('__main__'):
+    if not path.exists(PATH):
+        mkdir(PATH)
+
     log = {}
 
     log['datetime'] = {'date': datetime.strftime(datetime.now(), '%Y%m%d'),
@@ -289,6 +291,9 @@ if __name__ == ('__main__'):
             print(f'Error: {e.code} {e.error} - {e.message}', file=stderr)
             log['errors'][device_name]['device'] = f'{e.code} {e.error} - {e.message}'
             continue
+
+        ambient_temp = device['traits']['sdm.devices.traits.Temperature']['ambientTemperatureCelsius']
+        log[device_name]['ambient_temp'] = fahrenheit(ambient_temp)
 
         humidity = device['traits']['sdm.devices.traits.Humidity']['ambientHumidityPercent']
         set_temp = get_set_temp(secrets, weather, device_index)
