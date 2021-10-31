@@ -293,7 +293,7 @@ if __name__ == ('__main__'):
             continue
 
         ambient_temp = device['traits']['sdm.devices.traits.Temperature']['ambientTemperatureCelsius']
-        log[device_name]['ambient_temp'] = fahrenheit(ambient_temp)
+        log[device_name]['ambient_temp'] = round(fahrenheit(ambient_temp), 2)
 
         humidity = device['traits']['sdm.devices.traits.Humidity']['ambientHumidityPercent']
         set_temp = get_set_temp(secrets, weather, device_index)
