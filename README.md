@@ -44,6 +44,8 @@ Once the script has successfully discovered your devices and created `secrets.js
 
 This file contains all API keys and settings required for the script to undumb your Nest. It isn't very secret. Sorry. Maybe I should rename it `Victoria.json` - for as well as she keeps a secret...
 
+If you have not published the project with Google, and it is still sandboxed, the authorization code will expire weekly.  Run the script with `--refresh` to update `secrets.json` with a new authorization code when it expires.
+
 All units are unapologetically Fahrenheit. 'Murica.
 
 Most of the keys are self-explanatory. Here's some additional explanation for those that aren't quite as clear by their names alone:

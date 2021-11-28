@@ -7,11 +7,12 @@ from datetime import datetime, timedelta
 
 
 SCRIPT = path.basename(argv[0])
-VERSION = '0.1'
-PATH = path.join(path.expanduser('~'), 'undumb')
+VERSION = '0.2'
+PATH = path.join(path.expanduser('~'), 'undumb')  # for release
+# PATH = '.'  # for debugging
 SECRETS_FILE = path.join(PATH, 'secrets.json')
 WEATHER_FILE = path.join(PATH, 'weather.json')
-LOG_FILE = path.join(PATH, 'undumb-log.json')
+LOG_FILE = path.join(PATH, 'nest-log.json')
 
 
 class RequestError(Exception):
@@ -111,10 +112,10 @@ def first_run(filename=SECRETS_FILE):
         d['day_temp'] = 72.0
         d['night_temp'] = 69.0
         d['hysteresis'] = 3.0
-        d['day_offset'] = -60.0
+        d['day_offset'] = -100.0
         d['night_offset'] = 240.0
-        d['max_uv_offset'] = 18.0
-        d['mid_uv_offset'] = 14.0
+        d['max_uv_offset'] = 22.0
+        d['mid_uv_offset'] = 15.0
         d['min_uv_offset'] = 12.0
         d['morning_offset'] = 60.0
         d['evening_offset'] = 120.0
@@ -123,6 +124,38 @@ def first_run(filename=SECRETS_FILE):
     with open(filename, 'w') as f:
         f.write(json.dumps(s, indent=4))
     print(f'\nSetup complete.  Saved {filename} - customize it as desired.\n')
+    return s
+
+def refresh_authorization_code(secrets, filename=SECRETS_FILE):
+    s = secrets
+    print('\nVisit the following link to authorize access to your devices:')
+    print(f'  https://nestservices.google.com/partnerconnections/{s["project_id"]}/auth?redirect_uri=https://www.google.com&access_type=offline&prompt=consent&client_id={s["client_id"]}&response_type=code&scope=https://www.googleapis.com/auth/sdm.service')
+    print('\n  You will be redirected to another URL at the end of this step.')
+    print('  It will look like this: https://www.google.com?code=authorization-code&scope=https://www.googleapis.com/auth/sdm.service')
+    print('  Copy the code parameter (between code= and the next &) and paste it below:\n')
+
+    s['authorization_code'] = input('Enter authorization_code > ')
+
+    print('\nGetting access and refresh tokens...')
+    url = 'https://www.googleapis.com/oauth2/v4/token'
+    access_data = {
+        'client_id': s['client_id'],
+        'client_secret': s['client_secret'],
+        'code': s['authorization_code'],
+        'grant_type': 'authorization_code',
+        'redirect_uri': 'https://www.google.com'
+    }
+    r = post(url, access_data)
+    tokens = json.loads(r.text)
+    s['refresh_token'] = tokens['refresh_token']
+    s['access_token'] = tokens['access_token']
+
+    print(f'\nrefresh_token={s["refresh_token"]}')
+    print(f'access_token={s["access_token"]}')
+
+    with open(filename, 'w') as f:
+        f.write(json.dumps(s, indent=4))
+
     return s
 
 
@@ -168,6 +201,9 @@ def refresh_access_token(secrets, filename=SECRETS_FILE):
         with open(filename, 'w') as f:
             f.write(json.dumps(secrets, indent=4))
         return secrets
+    response['message'] = 'Try running this script with --refresh.'
+    if 'error_description' in response:
+        response['message'] = f"{response['error_description']}  {response['message']}"
     raise RequestError(response)
 
 
@@ -270,6 +306,9 @@ if __name__ == ('__main__'):
     secrets = load_json_file(SECRETS_FILE) if path.exists(
         SECRETS_FILE) else first_run()
 
+    if len(argv) > 1 and argv[1] == '--refresh':
+        secrets = refresh_authorization_code(secrets)
+
     try:
         weather = get_weather(secrets, WEATHER_FILE)
     except RequestError as e:
@@ -336,5 +375,5 @@ if __name__ == ('__main__'):
     if log['errors'] == {}:
         log.pop('errors')
 
-    with open(LOG_FILE, 'w') as f:
-        f.write(json.dumps(log, indent=4))
+    with open(LOG_FILE, 'a') as f:
+        f.write(json.dumps(log, indent=4) + ',')
