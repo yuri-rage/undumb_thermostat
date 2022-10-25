@@ -79,9 +79,16 @@ def first_run(filename=SECRETS_FILE):
     print(f'  https://nestservices.google.com/partnerconnections/{s["project_id"]}/auth?redirect_uri=https://www.google.com&access_type=offline&prompt=consent&client_id={s["client_id"]}&response_type=code&scope=https://www.googleapis.com/auth/sdm.service')
     print('\n  You will be redirected to another URL at the end of this step.')
     print('  It will look like this: https://www.google.com?code=authorization-code&scope=https://www.googleapis.com/auth/sdm.service')
-    print('  Copy the code parameter (between code= and the next &) and paste it below:\n')
+    print('  Copy the entire URL and paste it below:\n')
 
-    s['authorization_code'] = input('Enter authorization_code > ')
+    try:
+        auth_code_url = input('Enter authorization_code URL > ')
+        auth_code = re.split('code=|&', auth_code_url)[1]
+    except IndexError:
+        print('Invalid URL, exiting.')
+        exit(1)
+
+    s['authorization_code'] = auth_code
 
     print('\nGetting access and refresh tokens...')
     url = 'https://www.googleapis.com/oauth2/v4/token'
@@ -132,9 +139,16 @@ def refresh_authorization_code(secrets, filename=SECRETS_FILE):
     print(f'  https://nestservices.google.com/partnerconnections/{s["project_id"]}/auth?redirect_uri=https://www.google.com&access_type=offline&prompt=consent&client_id={s["client_id"]}&response_type=code&scope=https://www.googleapis.com/auth/sdm.service')
     print('\n  You will be redirected to another URL at the end of this step.')
     print('  It will look like this: https://www.google.com?code=authorization-code&scope=https://www.googleapis.com/auth/sdm.service')
-    print('  Copy the code parameter (between code= and the next &) and paste it below:\n')
+    print('  Copy the entire URL and paste it below:\n')
 
-    s['authorization_code'] = input('Enter authorization_code > ')
+    try:
+        auth_code_url = input('Enter authorization_code URL > ')
+        auth_code = re.split('code=|&', auth_code_url)[1]
+    except IndexError:
+        print('Invalid URL, exiting.')
+        exit(1)
+
+    s['authorization_code'] = auth_code
 
     print('\nGetting access and refresh tokens...')
     url = 'https://www.googleapis.com/oauth2/v4/token'
